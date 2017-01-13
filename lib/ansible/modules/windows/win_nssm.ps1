@@ -30,7 +30,7 @@ $result = @{
 }
 
 $name = Get-AnsibleParam -obj $params -name "name" -type "str" -failifempty $true
-$state = Get-AnsibleParam -obj $params -name "state" -type "str" -default "present" -validateset "present","absent","started","stopped","restarted" -resultobj $result
+$state = Get-AnsibleParam -obj $params -name "state" -type "str" -default "present" -validateset "present","absent","started","stopped","restarted","noop" -resultobj $result
 
 $application = Get-AnsibleParam -obj $params -name "application" -type "str"
 $appParameters = Get-AnsibleParam -obj $params -name "app_parameters" -type "str"
@@ -670,8 +670,11 @@ Try
 {
     switch ($state)
     {
-        "absent" {
-            Nssm-Remove -name $name
+        "noop" {
+            # Just load the module for unit-testing            
+        }
+        "absent" { 
+            Nssm-Remove -name $name 
         }
         "present" {
             NssmProcedure
