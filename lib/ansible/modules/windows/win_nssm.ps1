@@ -192,21 +192,6 @@ Function Nssm-Install
      }
 }
 
-Function ParseAppParameters()
-{
-   [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$true)]
-        [AllowEmptyString()]
-        [string]$appParameters
-    )
-
-    $escapedAppParameters = $appParameters.TrimStart("@").TrimStart("{").TrimEnd("}").Replace("; ","`n").Replace("\","\\")
-
-    return ConvertFrom-StringData -StringData $escapedAppParameters
-}
-
-
 Function Nssm-Update-AppParameters
 {
     [CmdletBinding()]
@@ -235,23 +220,22 @@ Function Nssm-Update-AppParameters
 
     if ($appParameters)
     {
-        $appParametersHash = ParseAppParameters -appParameters $appParameters
-        $appParametersHash.GetEnumerator() |
-            % {
-                $key = $($_.Name)
-                $val = $($_.Value)
+        $appParametersArray = $appParameters.TrimStart("@").TrimStart("{").TrimEnd("}").Split(";");
+        ForEach($appParameter in $appParametersArray) {
 
-                $appParamKeys += $key
-                $appParamVals += $val
+            $keyValue = $appParameter.Split("=")
 
-                if ($key -eq "_") {
-                    $singleLineParams = "$val " + $singleLineParams
-                } else {
-                    $singleLineParams = $singleLineParams + "$key ""$val"""
-                }
+            $appParamKeys += $keyValue[0].Trim(' ')
+            $appParamVals += $keyValue[1].Trim(' ')
+
+            if ($keyValue[0] -eq "_") {
+                $singleLineParams = $singleLineParams + "$keyValue[1]"
+            } else {
+                $singleLineParams = $singleLineParams + "$($keyValue[0]) `"$($keyValue[1])`""
             }
+        }
 
-        $result.nssm_app_parameters_parsed = $appParametersHash
+        $result.nssm_app_parameters_parsed = $appParametersArray
         $result.nssm_app_parameters_keys = $appParamKeys
         $result.nssm_app_parameters_vals = $appParamVals
     }

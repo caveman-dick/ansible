@@ -25,5 +25,11 @@ Describe "Nssm-Update-AppParameters" {
         Mock Nssm-Invoke {} -Verifiable -ParameterFilter { $cmd.StartsWith("set `"SomeService`" AppParameters")}
         Nssm-Update-AppParameters -name "SomeService" -appParameters "-name=value; -name2=value2"
         Assert-VerifiableMocks
-    }    
+    }
+
+    It "should set the AppParameters in the same order that they were sent in as" {
+        Mock Nssm-Invoke { return $cmd } -Verifiable -ParameterFilter { $cmd -eq 'set "SomeService" AppParameters -name2 "value2" -name "value" -name3 "value3"' }
+        Nssm-Update-AppParameters -name "SomeService" -appParameters "-name2=value2; -name=value; -name3=value3"
+        Assert-VerifiableMocks        
+    }
 }
