@@ -88,6 +88,12 @@ Add the following to your launch.json (when you have the PowerShell extention in
 }
 ```
 
+##### Debugging Caveats
+
+As the file under test is actually a tempfile generated on each run if you try and make changes to it these won't be reflected on the next test run.
+To try and prevent this, the file is named `[ModuleName].TempGenerated.ps1` and marked as ReadOnly so that if you do try and edit it you won't be able
+to without taking off this flag.
+
 ## Developing tests
 
 Unit tests for modules should be contained within a folder named the same as the module. i.e. `test\units\modules\windows\win_nssm`
@@ -98,10 +104,10 @@ Once installed Pester enables a helper command that can setup a templated test (
 New-Fixture -Path win_nssm -Name Nssm-Install
 ```
 
-This will create a new folder if it doesn't exist and then add 2 new files. 
+This will create a new folder if it doesn't exist and then add 2 new files.
 Just delete the one that is named the same as the `-Name` param above. This is a implementation template and we don't need this.
 
-Then replace the top 3 lines with the following snippet:
+Then replace the top 3 lines in the [Name].Tests.ps1 file with the following snippet:
 
 ```powershell
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path

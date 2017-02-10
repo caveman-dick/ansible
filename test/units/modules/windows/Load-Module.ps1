@@ -20,7 +20,8 @@ $complex_args = @'
 
 $powershell_common = $powershell_common -replace "<<INCLUDE_ANSIBLE_MODULE_JSON_ARGS>>", $complex_args
 $powershell_text = $module -replace "# POWERSHELL_COMMON", $powershell_common
-$powershell_tempfile = [System.IO.Path]::GetTempFileName() + ".ps1"
-Set-Content -Path $powershell_tempfile $powershell_text
+$powershell_tempfile = Join-Path -Path $env:TEMP -ChildPath "$ModuleName.TempGenerated.ps1"
+Set-Content -Path $powershell_tempfile $powershell_text -Force
+Set-ItemProperty $powershell_tempfile -name IsReadOnly -value $true
 
 . $powershell_tempfile
