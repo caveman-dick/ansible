@@ -224,17 +224,19 @@ Function Nssm-Update-AppParameters
         ForEach($appParameter in $appParametersArray) {
 
             $keyValue = $appParameter.Split("=")
+            $key = $keyValue[0].Trim(' ')
+            $value = $keyValue[1].Trim(' ')
 
-            $appParamKeys += $keyValue[0].Trim(' ')
-            $appParamVals += $keyValue[1].Trim(' ')
+            $appParamKeys += $key
+            $appParamVals += $value
 
-            if ($keyValue[0] -eq "_") {
-                $singleLineParams = $singleLineParams + "$keyValue[1]"
+            if ($key -eq "_") {
+                $singleLineParams = "$value $singleLineParams".Trim(' ')
             } else {
-                $singleLineParams = $singleLineParams + "$($keyValue[0]) `"$($keyValue[1])`""
+                $singleLineParams = "$singleLineParams $key `"$value`"".Trim(' ')
             }
         }
-
+        
         $result.nssm_app_parameters_parsed = $appParametersArray
         $result.nssm_app_parameters_keys = $appParamKeys
         $result.nssm_app_parameters_vals = $appParamVals

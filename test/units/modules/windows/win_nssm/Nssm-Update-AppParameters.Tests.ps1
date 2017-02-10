@@ -38,4 +38,10 @@ Describe "Nssm-Update-AppParameters" {
         Nssm-Update-AppParameters -name "SomeService" -appParameters "_=command; -name1=value1; -name2=value2"
         Assert-VerifiableMocks        
     }
+
+    It "should put the app paramter which has a key of _ at the beginning of the command even if the parameter is not the first in the list" {
+        Mock Nssm-Invoke { return $cmd } -Verifiable -ParameterFilter { $cmd -eq 'set "SomeService" AppParameters command -name1 "value1" -name2 "value2"' }
+        Nssm-Update-AppParameters -name "SomeService" -appParameters "-name1=value1; -name2=value2; _=command"
+        Assert-VerifiableMocks        
+    }
 }
