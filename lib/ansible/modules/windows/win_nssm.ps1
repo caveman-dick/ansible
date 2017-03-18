@@ -218,9 +218,19 @@ Function Nssm-Update-AppParameters
     $appParamVals = @()
     $singleLineParams = ""
 
-    if ($appParameters)
+    try {
+        $appParametersArray = ConvertFrom-Json $appParameters 
+    }
+    catch {
+    }
+
+    if ($appParametersArray -is [Array]) {
+        $singleLineParams = $appParametersArray -join ' '
+    }
+    elseif ($appParameters)
     {
         $appParametersArray = $appParameters.TrimStart("@").TrimStart("{").TrimEnd("}").Split(";");
+
         ForEach($appParameter in $appParametersArray) {
 
             $keyValue = $appParameter.Split("=")

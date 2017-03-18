@@ -1,11 +1,11 @@
-$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $moduleName = Split-Path -Leaf $here
 $sut = '..\Load-Module.ps1'
 . "$here\$sut" -ModuleName $moduleName
 
 Describe "Nssm-Update-AppParameters" {
     BeforeEach {
-        $Global:LastExitCode = 0;
+        $Global:LastExitCode = 0;        
     }
     
     It "calls Nssm-Invoke getting the AppParameters with the correct name" {
@@ -49,4 +49,13 @@ Describe "Nssm-Update-AppParameters" {
         Mock Nssm-Invoke { return $cmd } -Verifiable -ParameterFilter { $cmd -eq 'set "SomeService" AppParameters -jar C:\jenkins\jenkins-swarm.jar -fsroot C:\jenkins\ws' }
         Nssm-Update-AppParameters -name "SomeService" -appParameters '' -appParametersFree '-jar C:\jenkins\jenkins-swarm.jar -fsroot C:\jenkins\ws'
         Assert-VerifiableMocks        
+    }
+    
+    It "should support using an ordered list to supply the app_parameters" {
+        Mock Nssm-Invoke { return $cmd } -Verifiable -ParameterFilter { $cmd -eq 'set "SomeService" AppParameters -jar C:\\jenkins\\jenkins-swarm.jar -fsroot C:\jenkins\ws' }
+
+        $appParameters = '["-jar C:\\\\jenkins\\\\jenkins-swarm.jar", "-fsroot C:\\jenkins\\ws"]'
+        Nssm-Update-AppParameters -name "SomeService" -appParameters $appParameters
+        Assert-VerifiableMocks        
+    }
 }
