@@ -1,4 +1,4 @@
-﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+$here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $moduleName = Split-Path -Leaf $here
 $sut = '..\Load-Module.ps1'
 . "$here\$sut" -ModuleName $moduleName
@@ -44,4 +44,9 @@ Describe "Nssm-Update-AppParameters" {
         Nssm-Update-AppParameters -name "SomeService" -appParameters "-name1=value1; -name2=value2; _=command"
         Assert-VerifiableMocks        
     }
+
+    It "should pass the appParametersFree verbatim to Nssm-Invoke" {
+        Mock Nssm-Invoke { return $cmd } -Verifiable -ParameterFilter { $cmd -eq 'set "SomeService" AppParameters -jar C:\jenkins\jenkins-swarm.jar -fsroot C:\jenkins\ws' }
+        Nssm-Update-AppParameters -name "SomeService" -appParameters '' -appParametersFree '-jar C:\jenkins\jenkins-swarm.jar -fsroot C:\jenkins\ws'
+        Assert-VerifiableMocks        
 }
