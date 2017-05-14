@@ -8,12 +8,20 @@ Param(
 Write-Host "Loading ansible Module - $ModuleName"
 
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
-$powershell_path = (Split-Path -Parent $MyInvocation.MyCommand.Path) -replace 'test\\units\\modules\\windows', 'lib\ansible\module_utils\powershell.ps1'
+if ($IsLinux) {
+    $powershell_path = $here -replace 'test[\\/]units[\\/]modules[\\/]windows', 'lib/ansible/module_utils/powershell.ps1'
+} else {
+    $powershell_path = $here -replace 'test[\\/]units[\\/]modules[\\/]windows', 'lib\ansible\module_utils\powershell.ps1'
+}
 
 # It won't load as a module unless the ext is .psm1
 $powershell_module_path = $powershell_path.Replace(".ps1", ".psm1")
 Copy-Item $powershell_path $powershell_module_path
-$sut = (Split-Path -Parent $MyInvocation.MyCommand.Path) -replace 'test\\units\\modules\\windows', "lib\ansible\modules\windows\$ModuleName.ps1"
+if ($IsLinux) {
+    $sut = $here -replace 'test[\\/]units[\\/]modules[\\/]windows', "lib/ansible/modules/windows/$ModuleName.ps1"
+} else {
+    $sut = $here -replace 'test[\\/]units[\\/]modules[\\/]windows', "lib\ansible\modules\windows\$ModuleName.ps1"
+}
 
 $complex_args = @'
 {"name": "TaskName", "state": "noop" }
